@@ -17,11 +17,26 @@
  */
 struct list_head *q_new()
 {
-    return NULL;
+    element_t *e;
+    if (!(e = malloc(sizeof(*e))))
+        return NULL;
+    e->value = NULL;
+    return &e->list;
 }
 
 /* Free all storage used by queue */
-void q_free(struct list_head *l) {}
+void q_free(struct list_head *l)
+{
+    if (!l)
+        return;
+    element_t *e, *safe;
+    list_for_each_entry_safe (e, safe, l, list) {
+        free(e->value);
+        free(e);
+    }
+    free(e->value);
+    free(e);
+}
 
 /*
  * Attempt to insert element at head of queue.
@@ -32,7 +47,26 @@ void q_free(struct list_head *l) {}
  */
 bool q_insert_head(struct list_head *head, char *s)
 {
+    element_t *e;
+    char *new_s;
+    int len;
+
+    if (!head)
+        return NULL;
+    if (!(e = malloc(sizeof(*e))))
+        goto end_element;
+    len = strlen(s);
+    if (!(new_s = malloc(sizeof(*new_s) * len + 1)))
+        goto end_string;
+    strncpy(new_s, s, len + 1);
+    e->value = new_s;
+    list_add(&e->list, head);
     return true;
+
+end_string:
+    free(e);
+end_element:
+    return false;
 }
 
 /*
@@ -44,7 +78,26 @@ bool q_insert_head(struct list_head *head, char *s)
  */
 bool q_insert_tail(struct list_head *head, char *s)
 {
+    element_t *e;
+    char *new_s;
+    int len;
+
+    if (!head)
+        return NULL;
+    if (!(e = malloc(sizeof(*e))))
+        goto end_element;
+    len = strlen(s);
+    if (!(new_s = malloc(sizeof(*new_s) * len + 1)))
+        goto end_string;
+    strncpy(new_s, s, len + 1);
+    e->value = new_s;
+    list_add_tail(&e->list, head);
     return true;
+
+end_string:
+    free(e);
+end_element:
+    return false;
 }
 
 /*
@@ -63,7 +116,20 @@ bool q_insert_tail(struct list_head *head, char *s)
  */
 element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
 {
-    return NULL;
+    if (!head)
+        return NULL;
+    if (list_empty(head))
+        return NULL;
+    struct list_head *node;
+    element_t *e;
+    node = head->next;
+    list_del(node);
+    e = container_of(node, element_t, list);
+    if (sp) {
+        strncpy(sp, e->value, bufsize - 1);
+        sp[bufsize] = '\0';
+    }
+    return e;
 }
 
 /*
@@ -72,7 +138,20 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
  */
 element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
 {
-    return NULL;
+    if (!head)
+        return NULL;
+    if (list_empty(head))
+        return NULL;
+    struct list_head *node;
+    element_t *e;
+    node = head->prev;
+    list_del(node);
+    e = container_of(node, element_t, list);
+    if (sp) {
+        strncpy(sp, e->value, bufsize - 1);
+        sp[bufsize] = '\0';
+    }
+    return e;
 }
 
 /*
