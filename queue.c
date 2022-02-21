@@ -123,12 +123,17 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
         return NULL;
     struct list_head *node;
     element_t *e;
+
     node = head->next;
     list_del(node);
     e = container_of(node, element_t, list);
     if (sp) {
-        strncpy(sp, e->value, bufsize - 1);
-        sp[bufsize] = '\0';
+        size_t len, max_len;
+
+        len = strlen(e->value);
+        max_len = len > (bufsize - 1) ? (bufsize - 1) : len;
+        strncpy(sp, e->value, max_len);
+        sp[max_len] = '\0';
     }
     return e;
 }
@@ -145,12 +150,17 @@ element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
         return NULL;
     struct list_head *node;
     element_t *e;
+
     node = head->prev;
     list_del(node);
     e = container_of(node, element_t, list);
     if (sp) {
-        strncpy(sp, e->value, bufsize - 1);
-        sp[bufsize] = '\0';
+        size_t len, max_len;
+
+        len = strlen(e->value);
+        max_len = len > (bufsize - 1) ? (bufsize - 1) : len;
+        strncpy(sp, e->value, max_len);
+        sp[max_len] = '\0';
     }
     return e;
 }
