@@ -283,6 +283,15 @@ bool q_delete_dup(struct list_head *head)
 void q_swap(struct list_head *head)
 {
     // https://leetcode.com/problems/swap-nodes-in-pairs/
+    if (!head)
+        return;
+    element_t *e, *safe;
+    list_for_each_entry_safe (e, safe, head, list) {
+        if (&safe->list == head)
+            break;
+        list_move(&e->list, &safe->list);
+        safe = list_entry(e->list.next, element_t, list);
+    }
 }
 
 /*
@@ -292,7 +301,22 @@ void q_swap(struct list_head *head)
  * (e.g., by calling q_insert_head, q_insert_tail, or q_remove_head).
  * It should rearrange the existing ones.
  */
-void q_reverse(struct list_head *head) {}
+void q_reverse(struct list_head *head)
+{
+    if (!head)
+        return;
+    if (list_empty(head))
+        return;
+    element_t sentinel_element;
+
+    INIT_LIST_HEAD(&sentinel_element.list);
+    element_t *e, *safe;
+
+    list_for_each_entry_safe (e, safe, head, list) {
+        list_move(&e->list, &sentinel_element.list);
+    }
+    list_splice_init(&sentinel_element.list, head);
+}
 
 /*
  * Sort elements of queue in ascending order
