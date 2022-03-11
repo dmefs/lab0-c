@@ -318,9 +318,55 @@ void q_reverse(struct list_head *head)
     list_splice_init(&sentinel_element.list, head);
 }
 
+void mergeTwoLists(struct list_head *L1, struct list_head *L2)
+{
+    element_t *e1, *e2;
+    LIST_HEAD(head);
+
+    e1 = list_entry(L1->next, element_t, list);
+    e2 = list_entry(L2->next, element_t, list);
+
+    while (!list_empty(L1) && !list_empty(L2)) {
+        if (strcmp(e1->value, e2->value) < 0) {
+            list_move_tail(&e1->list, &head);
+            e1 = list_entry(L1->next, element_t, list);
+        } else {
+            list_move_tail(&e2->list, &head);
+            e2 = list_entry(L2->next, element_t, list);
+        }
+    }
+    list_splice_tail_init(L1, &head);
+    list_splice_tail_init(L2, &head);
+    list_splice(&head, L1);
+}
+
+static void mergesort_list(struct list_head *head)
+{
+    if (!head || list_empty(head) || list_is_singular(head))
+        return;
+
+    struct list_head *front, *back;
+
+    back = head->prev;
+    list_for_each (front, head) {
+        if (front == back)
+            break;
+        back = back->prev;
+        if (front == back)
+            break;
+    }
+    LIST_HEAD(mid);
+    list_cut_position(&mid, head, front);
+    mergesort_list(head);
+    mergesort_list(&mid);
+    mergeTwoLists(head, &mid);
+}
 /*
  * Sort elements of queue in ascending order
  * No effect if q is NULL or empty. In addition, if q has only one
  * element, do nothing.
  */
-void q_sort(struct list_head *head) {}
+void q_sort(struct list_head *head)
+{
+    mergesort_list(head);
+}

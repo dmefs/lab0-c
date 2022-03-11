@@ -713,9 +713,9 @@ bool do_sort(int argc, char *argv[])
     error_check();
 
     set_noallocate_mode(true);
-    if (exception_setup(true))
-        q_sort(l_meta.l);
-    exception_cancel();
+    // if (exception_setup(true))
+    q_sort(l_meta.l);
+    // exception_cancel();
     set_noallocate_mode(false);
 
     bool ok = true;
